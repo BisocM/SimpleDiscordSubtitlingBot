@@ -45,7 +45,7 @@ For speech-to-text functionality, you will need an API Key from Microsoft Cognit
 5. After your resource is deployed, go to your resource page, and find the "Keys and Endpoint" section on the left panel.
 6. Copy one of the provided keys; this will be your Microsoft Cognitive Services API Key.
 
-**Note**: Microsoft may offer a free tier for this service, but you should review their pricing information to avoid any unexpected charges.
+**Note**: Microsoft may offer a free tier for this service, but you should review their pricing information to avoid any unexpected charges. I have tested this on the Standard subscription tier. There are some limitations on their free tier, so if something is going wrong, it might be worth switching to that. As of the date of publishing this application, Microsoft is offering 300 GBP to newly-created accounts.
 
 Once you have both the Discord Bot Token and the Microsoft Cognitive Services API Key, enter them into the corresponding fields in the Simple Discord Subtitling Bot application.
 
