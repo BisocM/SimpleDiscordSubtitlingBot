@@ -1,0 +1,12 @@
+﻿<Window x:Class="SimpleDiscordSubtitlingBot.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        AllowsTransparency="True" Background="Transparent" WindowStyle="None"
+        Topmost="True" Width="Auto" Height="Auto"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    <Grid Background="Transparent">
+        <Border Background="Transparent" MouseLeftButtonDown="DraggableArea_MouseLeftButtonDown" />
+        <StackPanel x:Name="subtitlesPanel">
+        </StackPanel>
+    </Grid>
+</Window>
