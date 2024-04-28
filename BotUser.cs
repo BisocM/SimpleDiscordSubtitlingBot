@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,8 @@ namespace SimpleDiscordSubtitlingBot
 
         public string DiscordBotToken { get; set; }
         public string DiscordClientId { get; set; }
+        public string ServiceRegion { get; set; }
         public string MicrosoftCognitiveServicesKey { get; set; }
+        public DiscordMember? SelectedUser { get; set; }
     }
 }

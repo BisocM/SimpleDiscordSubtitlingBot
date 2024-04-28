@@ -19,7 +19,7 @@ namespace SimpleDiscordSubtitlingBot
         private VoiceNextExtension _voiceNext;
         private OverlayWindow _overlayWindow;
 
-        private ConcurrentDictionary<uint, SpeechRecognition> _recognizers = new();
+        private ConcurrentDictionary<uint, SpeechRecognitionHandler> _recognizers = new();
 
         public MainWindow()
         {
@@ -29,15 +29,7 @@ namespace SimpleDiscordSubtitlingBot
             fontSizeSlider.ValueChanged += FontSizeSlider_ValueChanged;
         }
 
-        private void ToggleDarkMode(bool isDark)
-        {
-            var paletteHelper = new PaletteHelper();
-            var theme = paletteHelper.GetTheme();
-
-            theme.SetBaseTheme(isDark ? BaseTheme.Dark : BaseTheme.Light);
-
-            paletteHelper.SetTheme(theme);
-        }
+        #region Initialization
 
         private async Task InitializeClientAsync(string token)
         {
@@ -45,7 +37,8 @@ namespace SimpleDiscordSubtitlingBot
             {
                 Token = token,
                 TokenType = TokenType.Bot,
-                AutoReconnect = true
+                AutoReconnect = true,
+                Intents = DiscordIntents.Guilds | DiscordIntents.GuildMessages | DiscordIntents.GuildVoiceStates | DiscordIntents.MessageContents
             };
 
             _client = new DiscordClient(config);
@@ -73,6 +66,8 @@ namespace SimpleDiscordSubtitlingBot
             lstGuilds.ItemsSource = guilds;
         }
 
+        #endregion
+
         #region UI Interactions
 
         private async void InitializeBot_Click(object sender, RoutedEventArgs e)
@@ -81,11 +76,41 @@ namespace SimpleDiscordSubtitlingBot
             {
                 initButton.IsEnabled = false;
 
+                if (string.IsNullOrWhiteSpace(txtToken.Text))
+                {
+                    MessageBox.Show("Bot token is required.");
+                    initButton.IsEnabled = true;
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(txtCognitiveServicesKey.Text))
+                {
+                    MessageBox.Show("Microsoft Cognitive Services API Key is required.");
+                    initButton.IsEnabled = true;
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(cboServiceRegion.SelectedValue?.ToString()))
+                {
+                    MessageBox.Show("Service region must be specified.");
+                    initButton.IsEnabled = true;
+                    return;
+                }
+
                 _overlayWindow = new OverlayWindow();
                 await InitializeClientAsync(txtToken.Text);
+
                 BotUser.Instance.DiscordBotToken = txtToken.Text;
                 BotUser.Instance.DiscordClientId = _client.CurrentUser.Id.ToString();
                 BotUser.Instance.MicrosoftCognitiveServicesKey = txtCognitiveServicesKey.Text;
+                if (cboServiceRegion.SelectedItem is ComboBoxItem selectedRegionItem)
+                    BotUser.Instance.ServiceRegion = selectedRegionItem.Content.ToString();
+                else
+                {
+                    MessageBox.Show("Service region must be selected.");
+                    initButton.IsEnabled = true;
+                    return;
+                }
 
                 txtGuildSearch.IsEnabled = true;
                 txtUserSearch.IsEnabled = true;
@@ -162,6 +187,14 @@ namespace SimpleDiscordSubtitlingBot
                 return;
             }
 
+            if (cboVoiceSelection.SelectedItem is not ComboBoxItem selectedVoice)
+            {
+                MessageBox.Show("Speech model must be specified.");
+                return;
+            }
+
+            string voiceName = selectedVoice.Tag.ToString();
+
             string selectedGuildName = lstGuilds.SelectedItem.ToString();
             var guild = _client.Guilds.Values.FirstOrDefault(g => g.Name == selectedGuildName);
             if (guild == null)
@@ -170,12 +203,13 @@ namespace SimpleDiscordSubtitlingBot
                 return;
             }
 
-            var user = guild.Members.Values.FirstOrDefault(m => $"{m.Username}#{m.Discriminator}" == lstUsers.SelectedItem.ToString() && !m.IsBot);
+            DiscordMember? user = guild.Members.Values.FirstOrDefault(m => $"{m.Username}#{m.Discriminator}" == lstUsers.SelectedItem.ToString() && !m.IsBot);
             if (user == null)
             {
                 MessageBox.Show("User not found in the selected guild.");
                 return;
             }
+            BotUser.Instance.SelectedUser = user;
 
             var voiceState = user.VoiceState;
             if (voiceState?.Channel == null)
@@ -184,13 +218,15 @@ namespace SimpleDiscordSubtitlingBot
                 return;
             }
 
-            //Make sure the user cannot change the list selections anymore.
             lstGuilds.IsEnabled = false;
             lstUsers.IsEnabled = false;
 
             DiscordChannel voiceChannel = voiceState.Channel;
             VoiceNextConnection connection = await voiceChannel.ConnectAsync();
             _overlayWindow.Show();
+
+            SpeechSynthesisHandler speechSynthesisHandler = new(BotUser.Instance.MicrosoftCognitiveServicesKey, BotUser.Instance.ServiceRegion, voiceName, connection);
+            _client.MessageCreated += speechSynthesisHandler.HandleMessage;
 
             ManageSpeechRecognition(connection);
         }
@@ -225,6 +261,15 @@ namespace SimpleDiscordSubtitlingBot
             ToggleDarkMode(false);
         }
 
+        private void ToggleDarkMode(bool isDark)
+        {
+            var paletteHelper = new PaletteHelper();
+            var theme = paletteHelper.GetTheme();
+
+            theme.SetBaseTheme(isDark ? BaseTheme.Dark : BaseTheme.Light);
+
+            paletteHelper.SetTheme(theme);
+        }
 
         #endregion
 
@@ -237,7 +282,7 @@ namespace SimpleDiscordSubtitlingBot
                 var username = ev.User != null ? ev.User.Username : "Unknown";
                 if (!_recognizers.TryGetValue(ev.SSRC, out var speechRecognition))
                 {
-                    speechRecognition = new SpeechRecognition(BotUser.Instance.MicrosoftCognitiveServicesKey, "eastus", username);
+                    speechRecognition = new SpeechRecognitionHandler(BotUser.Instance.MicrosoftCognitiveServicesKey, BotUser.Instance.ServiceRegion, username);
                     speechRecognition.StartRecognition();
                     _recognizers.TryAdd(ev.SSRC, speechRecognition);
                 }

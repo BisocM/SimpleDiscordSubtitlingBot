@@ -5,7 +5,7 @@ using System;
 
 namespace SimpleDiscordSubtitlingBot
 {
-    public class SpeechRecognition
+    public class SpeechRecognitionHandler
     {
         private SpeechRecognizer _recognizer;
         private PushAudioInputStream _pushStream;
@@ -15,7 +15,7 @@ namespace SimpleDiscordSubtitlingBot
 
         public string Username { get; private set; }
 
-        public SpeechRecognition(string subscriptionKey, string serviceRegion, string username)
+        public SpeechRecognitionHandler(string subscriptionKey, string serviceRegion, string username)
         {
             var speechConfig = SpeechConfig.FromSubscription(subscriptionKey, serviceRegion);
             speechConfig.SpeechRecognitionLanguage = "en-US";

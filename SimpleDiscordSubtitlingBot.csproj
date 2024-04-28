@@ -7,14 +7,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
 	<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
-	<ApplicationIcon>SDSicon.ico</ApplicationIcon>
+	<ApplicationIcon>SDSICON.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="SDSicon.ico" />
+    <Content Include="SDSICON.ico" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Concentus" Version="1.1.7" />
+    <PackageReference Include="Concentus.OggFile" Version="1.0.4" />
     <PackageReference Include="DSharpPlus" Version="4.4.6" />
     <PackageReference Include="DSharpPlus.VoiceNext" Version="4.4.6" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
