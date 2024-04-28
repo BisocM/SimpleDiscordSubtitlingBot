@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDiscordSubtitlingBot", "SimpleDiscordSubtitlingBot\SimpleDiscordSubtitlingBot.csproj", "{636F3BDC-0C39-4C0A-B971-7EB783B7282A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{636F3BDC-0C39-4C0A-B971-7EB783B7282A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{636F3BDC-0C39-4C0A-B971-7EB783B7282A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{636F3BDC-0C39-4C0A-B971-7EB783B7282A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{636F3BDC-0C39-4C0A-B971-7EB783B7282A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8124EA6F-79F9-4013-AE25-CAB3C2E70697}
+	EndGlobalSection
+EndGlobal
