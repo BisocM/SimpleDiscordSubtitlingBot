@@ -187,14 +187,6 @@ namespace SimpleDiscordSubtitlingBot
                 return;
             }
 
-            if (cboVoiceSelection.SelectedItem is not ComboBoxItem selectedVoice)
-            {
-                MessageBox.Show("Speech model must be specified.");
-                return;
-            }
-
-            string voiceName = selectedVoice.Tag.ToString();
-
             string selectedGuildName = lstGuilds.SelectedItem.ToString();
             var guild = _client.Guilds.Values.FirstOrDefault(g => g.Name == selectedGuildName);
             if (guild == null)
@@ -224,9 +216,6 @@ namespace SimpleDiscordSubtitlingBot
             DiscordChannel voiceChannel = voiceState.Channel;
             VoiceNextConnection connection = await voiceChannel.ConnectAsync();
             _overlayWindow.Show();
-
-            SpeechSynthesisHandler speechSynthesisHandler = new(BotUser.Instance.MicrosoftCognitiveServicesKey, BotUser.Instance.ServiceRegion, voiceName, connection);
-            _client.MessageCreated += speechSynthesisHandler.HandleMessage;
 
             ManageSpeechRecognition(connection);
         }

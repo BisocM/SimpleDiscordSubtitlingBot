@@ -4,7 +4,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
         xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av" x:Class="SimpleDiscordSubtitlingBot.MainWindow" 
-        Title="Subtitling Contorl Panel" Height="750" Width="700" 
+        Title="Subtitling Control Panel" Height="750" Width="700" 
         TextElement.Foreground="{DynamicResource MaterialDesignBody}" 
         Background="{DynamicResource MaterialDesignBackground}" 
         TextElement.FontWeight="Medium" TextElement.FontSize="14" 
@@ -92,7 +92,6 @@
             <Button x:Name="transcribButton" Content="Start Transcribing" Click="StartTranscribing_Click" Margin="5"/>
         </StackPanel>
 
-
         <!-- Subtitle customization settings -->
         <Border BorderThickness="1" BorderBrush="{DynamicResource MaterialDesignBody}" Margin="10,10,10,357" Grid.Column="1">
             <StackPanel Margin="10" Grid.Column="1">
@@ -113,45 +112,5 @@
                 <ToggleButton x:Name="DarkModeToggle" Content="☼" Checked="DarkModeToggle_Checked" Unchecked="DarkModeToggle_Unchecked" Margin="5, 5, 240, 5"/>
             </StackPanel>
         </Border>
-
-        <Border BorderThickness="1" BorderBrush="{DynamicResource MaterialDesignBody}"
-                Margin="10,382,10,10" Grid.Column="1">
-            <StackPanel Margin="10">
-                <DockPanel LastChildFill="True">
-                    <TextBlock Text="Speech Synthesis Settings" FontWeight="Bold" Margin="5" VerticalAlignment="Center"/>
-                    <Rectangle DockPanel.Dock="Right" Fill="{DynamicResource MaterialDesignBody}" Height="1" VerticalAlignment="Center"/>
-                </DockPanel>
-                <ComboBox x:Name="cboVoiceSelection" Margin="5"
-                          Style="{DynamicResource MaterialDesignComboBox}"
-                          materialDesign:HintAssist.Hint="Select service region"
-                          Foreground="{DynamicResource MaterialDesignBody}"
-                          Background="{DynamicResource MaterialDesignTextBoxBackground}"
-                          IsEditable="False">
-                    <ComboBoxItem Tag="en-US-AvaNeural" Content="Female - Ava (en-US)"/>
-                    <ComboBoxItem Tag="en-US-AndrewNeural" Content="Male - Andrew (en-US)"/>
-                    <ComboBoxItem Tag="en-US-EmmaNeural" Content="Female - Emma (en-US)"/>
-                    <ComboBoxItem Tag="en-US-BrianNeural" Content="Male - Brian (en-US)"/>
-                    <ComboBoxItem Tag="en-US-JennyNeural" Content="Female - Jenny (en-US)"/>
-                    <ComboBoxItem Tag="en-US-GuyNeural" Content="Male - Guy (en-US)"/>
-                    <ComboBoxItem Tag="en-US-AriaNeural" Content="Female - Aria (en-US)"/>
-                    <ComboBoxItem Tag="en-US-DavisNeural" Content="Male - Davis (en-US)"/>
-                    <ComboBoxItem Tag="en-US-JaneNeural" Content="Female - Jane (en-US)"/>
-                    <ComboBoxItem Tag="en-US-JasonNeural" Content="Male - Jason (en-US)"/>
-                    <ComboBoxItem Tag="en-US-SaraNeural" Content="Female - Sara (en-US)"/>
-                    <ComboBoxItem Tag="en-US-TonyNeural" Content="Male - Tony (en-US)"/>
-                    <ComboBoxItem Tag="en-US-NancyNeural" Content="Female - Nancy (en-US)"/>
-                    <ComboBoxItem Tag="en-US-AmberNeural" Content="Female - Amber (en-US)"/>
-                    <ComboBoxItem Tag="en-US-AnaNeural" Content="Female, Child - Ana (en-US)"/>
-                    <ComboBoxItem Tag="en-US-AshleyNeural" Content="Female - Ashley (en-US)"/>
-                    <ComboBoxItem Tag="en-US-BrandonNeural" Content="Male - Brandon (en-US)"/>
-                    <ComboBoxItem Tag="en-US-ChristopherNeural" Content="Male - Christopher (en-US)"/>
-                    <ComboBoxItem Tag="en-US-CoraNeural" Content="Female - Cora (en-US)"/>
-                    <ComboBoxItem Tag="en-US-ElizabethNeural" Content="Female - Elizabeth (en-US)"/>
-                    <ComboBoxItem Tag="en-US-EricNeural" Content="Male - Eric (en-US)"/>
-                    <ComboBoxItem Tag="en-US-JacobNeural" Content="Male - Jacob (en-US)"/>
-                </ComboBox>
-            </StackPanel>
-        </Border>
-
     </Grid>
 </Window>
