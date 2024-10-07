@@ -2,13 +2,17 @@
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
+using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using MaterialDesignThemes.Wpf;
+using System.Windows.Navigation;
 
 namespace SimpleDiscordSubtitlingBot
 {
@@ -23,10 +27,14 @@ namespace SimpleDiscordSubtitlingBot
 
         public MainWindow()
         {
+            InitializeComponent();
             _overlayWindow = new OverlayWindow();
 
-            InitializeComponent();
+            //Connect event handlers if not already connected via XAML
+            txtGuildSearch.KeyUp += TxtGuildSearch_KeyUp;
             fontSizeSlider.ValueChanged += FontSizeSlider_ValueChanged;
+            DarkModeToggle.Checked += DarkModeToggle_Checked;
+            DarkModeToggle.Unchecked += DarkModeToggle_Unchecked;
         }
 
         #region Initialization
@@ -85,7 +93,7 @@ namespace SimpleDiscordSubtitlingBot
 
                 if (string.IsNullOrWhiteSpace(txtCognitiveServicesKey.Text))
                 {
-                    MessageBox.Show("Microsoft Cognitive Services API Key is required.");
+                    MessageBox.Show("Azure Cognitive Services API Key is required.");
                     initButton.IsEnabled = true;
                     return;
                 }
@@ -97,7 +105,6 @@ namespace SimpleDiscordSubtitlingBot
                     return;
                 }
 
-                _overlayWindow = new OverlayWindow();
                 await InitializeClientAsync(txtToken.Text);
 
                 BotUser.Instance.DiscordBotToken = txtToken.Text;
@@ -124,7 +131,7 @@ namespace SimpleDiscordSubtitlingBot
 
         private void TxtGuildSearch_KeyUp(object sender, KeyEventArgs e)
         {
-            if (_client.Guilds.Count != 0)
+            if (_client?.Guilds.Count > 0)
             {
                 var filtered = _client.Guilds.Values
                     .Where(g => g.Name.Contains(txtGuildSearch.Text, StringComparison.CurrentCultureIgnoreCase))
@@ -133,28 +140,24 @@ namespace SimpleDiscordSubtitlingBot
             }
             else
             {
-                MessageBox.Show($"No guilds to search through!");
+                MessageBox.Show("No guilds to search through!");
             }
         }
 
         private void LstGuilds_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("Guild selection changed");
-            if (lstGuilds.SelectedItem != null)
-            {
-                string selectedGuildName = lstGuilds.SelectedItem.ToString();
-                var guild = _client.Guilds.Values.FirstOrDefault(g => g.Name == selectedGuildName);
-                if (guild != null)
-                {
-                    var userDisplayList = guild.Members.Values
-                        .Where(member => !member.IsBot)
-                        .Select(member => $"{member.Username}#{member.Discriminator}")
-                        .ToList();
+            if (lstGuilds.SelectedItem == null) return;
+            
+            string? selectedGuildName = lstGuilds.SelectedItem.ToString();
+            var guild = _client.Guilds.Values.FirstOrDefault(g => g.Name == selectedGuildName);
+            if (guild == null) return;
 
-                    Debug.WriteLine("Updating user list with count: " + userDisplayList.Count);
-                    lstUsers.ItemsSource = userDisplayList;
-                }
-            }
+            var userDisplayList = guild.Members.Values
+                .Where(member => !member.IsBot)
+                .Select(member => $"{member.Username}#{member.Discriminator}")
+                .ToList();
+
+            lstUsers.ItemsSource = userDisplayList;
         }
 
         private void TxtUserSearch_KeyUp(object sender, KeyEventArgs e)
@@ -162,15 +165,14 @@ namespace SimpleDiscordSubtitlingBot
             if (lstGuilds.SelectedItem == null)
                 return;
 
-            string selectedGuildName = lstGuilds.SelectedItem.ToString();
+            string? selectedGuildName = lstGuilds.SelectedItem.ToString();
             var guild = _client.Guilds.Values.FirstOrDefault(g => g.Name == selectedGuildName);
-            if (guild != null)
-            {
-                var filtered = guild.Members.Values
-                    .Where(member => member.Username.StartsWith(txtUserSearch.Text, StringComparison.OrdinalIgnoreCase))
-                    .Select(member => $"{member.Username}#{member.Discriminator}");
-                lstUsers.ItemsSource = filtered;
-            }
+            if (guild == null) return;
+            
+            var filtered = guild.Members.Values
+                .Where(member => member.Username.StartsWith(txtUserSearch.Text, StringComparison.OrdinalIgnoreCase))
+                .Select(member => $"{member.Username}#{member.Discriminator}");
+            lstUsers.ItemsSource = filtered;
         }
 
         private async void StartTranscribing_Click(object sender, RoutedEventArgs e)
@@ -187,7 +189,7 @@ namespace SimpleDiscordSubtitlingBot
                 return;
             }
 
-            string selectedGuildName = lstGuilds.SelectedItem.ToString();
+            var selectedGuildName = lstGuilds.SelectedItem.ToString();
             var guild = _client.Guilds.Values.FirstOrDefault(g => g.Name == selectedGuildName);
             if (guild == null)
             {
@@ -222,23 +224,39 @@ namespace SimpleDiscordSubtitlingBot
 
         private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
         {
-            if (e.NewValue.HasValue && _overlayWindow != null)
-            {
+            if (_overlayWindow == null) return;
+
+            if (e.NewValue.HasValue)
                 _overlayWindow.SetSubtitleTextColor(e.NewValue.Value);
-            }
         }
 
-        private void OpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) =>
+        private void OpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_overlayWindow == null) return;
+
             _overlayWindow.SetBackgroundOpacity(e.NewValue);
+        }
 
-        private void OverallOpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) =>
-            _overlayWindow?.SetOverallOpacity(e.NewValue);
+        private void OverallOpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_overlayWindow == null) return;
 
-        private void TextOpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) =>
+            _overlayWindow.SetOverallOpacity(e.NewValue);
+        }
+
+        private void TextOpacitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_overlayWindow == null) return;
+            
             _overlayWindow.SetTextOpacity(e.NewValue);
+        }
 
-        private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) =>
+        private void FontSizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_overlayWindow == null) return;
+
             _overlayWindow?.SetFontSize(e.NewValue);
+        }
 
         private void DarkModeToggle_Checked(object sender, RoutedEventArgs e)
         {
@@ -258,6 +276,27 @@ namespace SimpleDiscordSubtitlingBot
             theme.SetBaseTheme(isDark ? BaseTheme.Dark : BaseTheme.Light);
 
             paletteHelper.SetTheme(theme);
+        }
+
+        //Event handler for the Discord bot link button
+        private void OpenDiscordBotLink_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(
+                new ProcessStartInfo("https://discord.com/developers/applications") { UseShellExecute = true });
+        }
+
+        //Event handler for the Azure Speech API link button
+        private void OpenAzureSpeechLink_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://azure.microsoft.com/en-us/services/cognitive-services/")
+                { UseShellExecute = true });
+        }
+
+        //Event handler for hyperlinks in the Help tab
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            e.Handled = true;
         }
 
         #endregion
@@ -296,11 +335,9 @@ namespace SimpleDiscordSubtitlingBot
 
             connection.UserLeft += (s, ev) =>
             {
-                if (_recognizers.TryRemove(ev.SSRC, out var speechRecog))
-                {
-                    speechRecog.StopRecognition();
-                    _overlayWindow.ClearSubtitle(speechRecog.Username);
-                }
+                if (!_recognizers.TryRemove(ev.SSRC, out var speechRecog)) return Task.CompletedTask;
+                speechRecog.StopRecognition();
+                _overlayWindow.ClearSubtitle(speechRecog.Username);
 
                 return Task.CompletedTask;
             };
